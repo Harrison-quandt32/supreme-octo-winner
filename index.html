@@ -1,1 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MacBook Settings</title>
+<style>
+:root {
+  --bg:#111318;
+  --panel:#1b2029;
+  --panel2:#202632;
+  --line:#343b47;
+  --text:#f4f6fa;
+  --muted:#a9b1bf;
+  --accent:#0a84ff;
+  --sidebar:#171b23;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  background:#090b10;
+  color:var(--text);
+  font:14px -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  padding:18px;
+}
+button,input,select { font:inherit; }
+button { cursor:pointer; color:inherit; }
+.window {
+  width:min(1440px,100%);
+  height:min(920px,calc(100vh - 36px));
+  min-height:650px;
+  border:1px solid #3b424e;
+  border-radius:16px;
+  overflow:hidden;
+  display:grid;
+  grid-template-columns:255px minmax(0,1fr);
+  background:var(--bg);
+  box-shadow:0 28px 100px #0009;
+}
+.sidebar {
+  background:linear-gradient(160deg,var(--sidebar),#1c222c);
+  border-right:1px solid var(--line);
+  padding:14px 10px;
+  overflow:auto;
+}
+.traffic { display:flex; gap:8px; padding:1px 12px 20px; }
+.dot { width:14px;height:14px;border-radius:50%;display:inline-block; }
+.red { background:#ff5f57; }
+.yellow { background:#febc2e; }
+.green { background:#28c840; }
+.search {
+  width:100%; border:1px solid #3a424f;
+  background:#222833;color:var(--text);
+  border-radius:9px;padding:10px 12px;margin-bottom:12px;
+}
+.nav {
+  display:flex;align-items:center;gap:10px;width:100%;
+  text-align:left;border:0;background:transparent;
+  padding:9px 10px;border-radius:9px;margin:2px 0;
+}
+.nav:hover { background:#ffffff10; }
+.nav.active { background:var(--accent);color:white; }
+.nav .ico {
+  display:grid;place-items:center;width:30px;height:30px;
+  border-radius:8px;background:var(--icon,#777);
+  font-size:17px;flex-shrink:0;
+}
+.navtext { white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.profile-nav { padding:10px 8px;margin-bottom:8px; }
+.avatar {
+  width:58px;height:58px;border-radius:50%;
+  display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 25%,#c8e5f9,#587b9a 45%,#243c55);
+  font-size:29px;overflow:hidden;flex-shrink:0;
+  border:2px solid #ffffff25;
+}
+.avatar img { width:100%;height:100%;object-fit:cover; }
+.profile-nav .avatar { width:48px;height:48px;font-size:24px; }
+.profile-nav .small { font-size:11px;opacity:.85;display:block;margin-top:2px; }
+.main { min-width:0;display:flex;flex-direction:column; }
+.topbar {
+  height:48px;display:flex;align-items:center;
+  padding:0 24px;border-bottom:1px solid var(--line);
+  font-size:18px;font-weight:650;flex-shrink:0;
+}
+.content {
+  display:grid;grid-template-columns:minmax(0,1fr) 300px;
+  min-height:0;flex:1;overflow:hidden;
+}
+.page {
+  overflow:auto;padding:24px 24px 36px;
+  scrollbar-color:#596271 transparent;scrollbar-width:thin;
+}
+.right-rail {
+  overflow:auto;border-left:1px solid var(--line);
+  padding:14px;background:#11151c;
+}
+.page-head { display:flex;gap:16px;align-items:center;margin-bottom:22px; }
+.page-head h1 { font-size:25px;margin:0 0 4px; }
+.muted,.sub { color:var(--muted); }
+.sub { font-size:13px; }
+.pill {
+  background:#303847;border:0;border-radius:999px;
+  padding:8px 14px;margin-top:10px;
+}
+.card {
+  background:linear-gradient(145deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:13px;
+  padding:14px 16px;margin-bottom:15px;overflow:hidden;
+}
+.card-title {
+  display:flex;align-items:center;gap:10px;
+  font-size:15px;font-weight:650;margin-bottom:8px;
+}
+.card-title .ico {
+  width:30px;height:30px;border-radius:8px;
+  background:#4d91e9;display:grid;place-items:center;font-size:17px;
+}
+.row {
+  display:flex;align-items:center;gap:12px;
+  min-height:43px;border-top:1px solid #ffffff12;padding:9px 0;
+}
+.row:first-of-type { border-top:0; }
+.row label,.row .label { flex:1;min-width:0; }
+.value { color:var(--muted);display:flex;align-items:center;gap:8px;text-align:right; }
+.chev { color:#98a2b1;font-size:20px; }
+.edit-input,.edit-select {
+  max-width:210px;width:52%;background:#11161e;
+  border:1px solid #3c4553;border-radius:7px;
+  color:var(--text);padding:7px 9px;
+}
+.toggle {
+  appearance:none;width:36px;height:21px;border-radius:99px;
+  background:#4a505b;position:relative;cursor:pointer;flex-shrink:0;
+}
+.toggle:after {
+  content:"";position:absolute;width:17px;height:17px;
+  border-radius:50%;background:white;left:2px;top:2px;transition:.2s;
+}
+.toggle:checked { background:var(--accent); }
+.toggle:checked:after { left:17px; }
+.range { accent-color:var(--accent);width:125px; }
+.color-input { width:35px;height:30px;padding:0;border:0;background:none; }
+.rail-card { padding:12px 13px;margin-bottom:12px; }
+.rail-card h3 { font-size:15px;margin:0; }
+.rail-card p { margin:2px 0 8px;color:var(--muted);font-size:12px; }
+.rail-item {
+  display:flex;align-items:center;gap:10px;
+  padding:8px 3px;border-top:1px solid #ffffff12;cursor:pointer;
+}
+.rail-item:hover { color:var(--accent); }
+.rail-icon {
+  width:27px;height:27px;display:grid;place-items:center;
+  border-radius:7px;background:#384352;font-size:15px;
+}
+.rail-item span:nth-child(2) { flex:1; }
+.rail-item small { color:var(--muted); }
+.hero { display:flex;align-items:center;gap:14px;margin-bottom:16px; }
+.hero h1 { font-size:23px;margin:0 0 4px; }
+.hero .sub { margin-top:3px; }
+.hero .avatar { width:88px;height:88px;font-size:38px; }
+.hidden { display:none!important; }
+.notice {
+  border:1px solid #2b6baf;background:#102b48;color:#d7eaff;
+  padding:11px 13px;border-radius:10px;margin-bottom:14px;font-size:12px;
+}
+.wallpapers { display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0; }
+.wall { height:76px;border:2px solid transparent;border-radius:10px;cursor:pointer;background:linear-gradient(135deg,#153a68,#5a9ee7); }
+.wall:nth-child(2) { background:linear-gradient(135deg,#421c65,#ed719f); }
+.wall:nth-child(3) { background:linear-gradient(135deg,#124a42,#7fd8b4); }
+.wall:nth-child(4) { background:linear-gradient(135deg,#7c3f18,#f6c66b); }
+.wall:nth-child(5) { background:linear-gradient(135deg,#222a40,#777f91); }
+.wall:nth-child(6) { background:linear-gradient(135deg,#2e185a,#5e79e8); }
+.wall.selected { border-color:var(--accent); }
+@media(max-width:1000px) {
+  .content { grid-template-columns:minmax(0,1fr); }
+  .right-rail { display:none; }
+  .window { grid-template-columns:220px minmax(0,1fr); }
+}
+@media(max-width:650px) {
+  body { padding:0; }
+  .window { height:100vh;min-height:0;border-radius:0;grid-template-columns:76px minmax(0,1fr); }
+  .sidebar { padding:12px 7px; }
+  .traffic { padding:2px 7px 18px; }
+  .nav { justify-content:center;padding:8px 3px; }
+  .nav .navtext,.profile-nav .profile-copy { display:none; }
+  .profile-nav { justify-content:center; }
+  .page { padding:17px 13px; }
+  .topbar { padding:0 15px; }
+}
+</style>
+</head>
+<body>
+<div class="window">
+  <aside class="sidebar">
+    <div class="traffic">
+      <i class="dot red"></i><i class="dot yellow"></i><i class="dot green"></i>
+    </div>
+    <input id="search" class="search" placeholder="⌕ Search settings…" aria-label="Search settings">
+    <button class="nav profile-nav active" data-page="profile">
+      <div class="avatar" id="navAvatar">🥍</div>
+      <span class="profile-copy"><b id="navName">Lacrosse Player</b>
+        <span class="small">Apple Account, iCloud & more</span>
+      </span>
+    </button>
+    <div id="navList"></div>
+  </aside>
+  <main class="main">
+    <header class="topbar" id="topTitle">Settings</header>
+    <div class="content">
+      <section class="page" id="page"></section>
+      <aside class="right-rail" id="rail"></aside>
+    </div>
+  </main>
+</div>
 
+<input type="file" id="photoFile" accept="image/*" hidden>
+
+<script>
+const items = [
+ ['Wi-Fi','📶','#1686ed'],['Bluetooth','ᛒ','#1686ed'],
+ ['Network','🌐','#1686ed'],['Notifications','🔔','#ed514c'],
+ ['Sound','🔊','#e84659'],['Focus','☾','#7558eb'],
+ ['Screen Time','⌛','#7355ec'],['General','⚙','#7e8792'],
+ ['Appearance','◐','#292d35'],['Accessibility','♿','#1686ed'],
+ ['Control Center','☷','#858b96'],['Siri & Spotlight','🌈','#4d5cb8'],
+ ['Privacy & Security','✋','#1686ed'],['Desktop & Dock','▣','#222a34'],
+ ['Displays','☀','#1686ed'],['Wallpaper','❋','#38a8d8'],
+ ['Screen Saver','▧','#35a9cf'],['Battery','▰','#35bd62'],
+ ['Date & Time','◷','#8a909b'],['Keyboard','⌨','#7e8792'],
+ ['Trackpad','▱','#7e8792'],['Printers & Scanners','▤','#7e8792'],
+ ['Users & Groups','♙','#7e8792'],['Passwords','🔑','#7e8792'],
+ ['About This Mac','','#777f8b']
+];
+
+let current = 'profile';
+const state = {
+ name:'Lacrosse Player',
+ birthday:'2008-04-12',
+ email:'player@example.com',
+ phone:'',
+ appearance:'Dark',
+ accent:'#0a84ff',
+ wallpaper:0,
+ wifi:true,bluetooth:true,notifications:true,sound:true,
+ focus:false,screenTime:false,icloud:true,backup:true,
+ brightness:80,volume:55,textSize:14,battery:true,
+ autoUpdates:true,firewall:true,privateRelay:false,
+ dockSize:50,reduceMotion:false,keyboardRepeat:5,trackSpeed:5
+};
+
+const navList = document.getElementById('navList');
+
+items.forEach(([name,icon,color]) => {
+ const b = document.createElement('button');
+ b.className = 'nav';
+ b.dataset.page = name;
+ b.innerHTML = `<span class="ico" style="--icon:${color}">${icon}</span>
+ <span class="navtext">${name}</span>`;
+ navList.appendChild(b);
+});
+
+function avatarHTML() {
+ return '<div class="avatar" id="mainAvatar">🥍</div>';
+}
+
+function row(label,content) {
+ return `<div class="row"><span class="label">${label}</span>${content}</div>`;
+}
+
+function toggle(key,checked=state[key]) {
+ return `<input class="toggle" type="checkbox" data-key="${key}" ${checked?'checked':''} aria-label="${key}">`;
+}
+
+function select(key,opts,value=state[key]) {
+ return `<select class="edit-select" data-key="${key}">
+ ${opts.map(o=>`<option ${o===value?'selected':''}>${o}</option>`).join('')}
+ </select>`;
+}
+
+function input(key,value,placeholder='') {
+ return `<input class="edit-input" data-key="${key}" value="${esc(value??'')}" placeholder="${placeholder}">`;
+}
+
+function esc(s) {
+ return String(s).replace(/[&<>"']/g,c=>({
+ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+ }[c]));
+}
+
+function card(title,icon,body) {
+ return `<div class="card"><div class="card-title">
+ <span class="ico">${icon}</span>${title}</div>${body}</div>`;
+}
+
+function renderProfile() {
+ return `<div class="hero">${avatarHTML()}<div>
+ <h1 id="heroName">${esc(state.name)}</h1>
+ <div class="sub">${esc(state.email||'Add an email address')}</div>
+ <button class="pill" id="changePhoto">Change Profile Picture</button>
+ </div></div>
+ <div class="notice">This is a local demo. Use sample details only; it does not connect to Apple or store real passwords.</div>
+ ${card('Personal Information','👤',
+ row('Full Name',input('name',state.name,'Your name'))+
+ row('Date of Birth',`<input class="edit-input" type="date" data-key="birthday" value="${esc(state.birthday)}">`)+
+ row('Email Address',input('email',state.email,'name@example.com'))+
+ row('Phone Number',input('phone',state.phone,'Optional')))}
+ ${card('Sign-In & Security','🔒',
+ row('Password','<span class="value">••••••••</span>')+
+ row('Two-Factor Authentication',`<span class="value">On</span>${toggle('twoFactor',true)}`)+
+ row('Trusted Devices','<span class="value">2 devices</span>')+
+ row('Account Recovery','<span class="value">Configured</span>'))}
+ ${card('iCloud','☁️',
+ row('iCloud Sync',toggle('icloud'))+
+ row('Photos',toggle('photos',true))+
+ row('Backups',toggle('backup'))+
+ row('Storage','<span class="value">200 GB of 2 TB used</span>'))}
+ ${card('Media & Purchases','🛍️',
+ row('App Store','<span class="value">Connected ›</span>')+
+ row('Music','<span class="value">Connected ›</span>')+
+ row('Subscriptions','<span class="value">Manage ›</span>'))}`;
+}
+
+function renderPage(name) {
+ const pages = {
+ 'Wi-Fi':()=>card('Wi-Fi','📶',
+ row('Wi-Fi',toggle('wifi'))+
+ row('Network',`<span class="value">${state.wifi?'Home Network':'Off'}</span>`)+
+ row('Ask to join networks',toggle('askJoin',true))),
+ 'Bluetooth':()=>card('Bluetooth','ᛒ',
+ row('Bluetooth',toggle('bluetooth'))+
+ row('My Devices',`<span class="value">${state.bluetooth?'Magic Mouse, Headphones':'Bluetooth is off'}</span>`)),
+ 'Network':()=>card('Network','🌐',
+ row('Firewall',toggle('firewall'))+
+ row('Private Relay',toggle('privateRelay'))+
+ row('Current Connection',`<span class="value">${state.wifi?'Wi-Fi':'Not connected'}</span>`)),
+ 'Notifications':()=>card('Notifications','🔔',
+ row('Allow Notifications',toggle('notifications'))+
+ row('Show Previews',select('previews',['Always','When Unlocked','Never'],'When Unlocked'))+
+ row('Notification Style',select('notifStyle',['Banners','Alerts','Off'],'Banners'))),
+ 'Sound':()=>card('Sound','🔊',
+ row('Output Volume',`<input class="range" type="range" min="0" max="100" data-key="volume" value="${state.volume}"><span class="value">${state.volume}%</span>`)+
+ row('Play sound effects',toggle('sound'))+
+ row('Alert sound',select('alertSound',['Glass','Pop','Purr','Sosumi'],'Glass'))),
+ 'Focus':()=>card('Focus Modes','🌙',
+ row('Do Not Disturb',toggle('focus'))+
+ row('Share Across Devices',toggle('shareFocus',true))),
+ 'Screen Time':()=>card('Screen Time','⌛',
+ row('Screen Time',toggle('screenTime'))+
+ row('App & Website Activity','<span class="value">Demo data only</span>')),
+ 'General':()=>card('General','⚙️',
+ row('Software Updates','<span class="value">macOS is up to date</span>')+
+ row('Automatic Updates',toggle('autoUpdates'))+
+ row('About','<span class="value">MacBook Pro ›</span>')+
+ row('AirDrop',select('airdrop',['Contacts Only','Everyone','Off'],'Contacts Only'))),
+ 'Appearance':()=>card('Appearance','◐',
+ row('Appearance',select('appearance',['Light','Dark','Auto']))+
+ row('Accent Color',`<input class="color-input" type="color" data-key="accent" value="${state.accent}">`)+
+ row('Allow wallpaper tinting',toggle('tint',true))+
+ row('Reduce Motion',toggle('reduceMotion'))),
+ 'Accessibility':()=>card('Accessibility','♿',
+ row('Text Size',`<input class="range" type="range" min="12" max="20" data-key="textSize" value="${state.textSize}"><span class="value">${state.textSize}px</span>`)+
+ row('Reduce Motion',toggle('reduceMotion'))+
+ row('Keyboard Navigation',toggle('keyboardNav'))),
+ 'Control Center':()=>card('Control Center','☷',
+ row('Show in Menu Bar',select('menuBar',['Always','When Active','Never'],'When Active'))+
+ row('Sound',toggle('sound'))+row('Wi-Fi',toggle('wifi'))+row('Bluetooth',toggle('bluetooth'))),
+ 'Siri & Spotlight':()=>card('Siri & Spotlight','🌈',
+ row('Enable Siri',toggle('siri',true))+
+ row('Show Spotlight in Menu Bar',toggle('spotlight',true))),
+ 'Privacy & Security':()=>card('Privacy & Security','✋',
+ row('Firewall',toggle('firewall'))+
+ row('Private Relay',toggle('privateRelay'))+
+ row('Analytics Sharing',toggle('analytics',false))+
+ row('FileVault',toggle('filevault',true))+
+ '<p class="sub">Demo toggles do not alter your Mac’s real security settings.</p>'),
+ 'Desktop & Dock':()=>card('Desktop & Dock','▣',
+ row('Dock Size',`<input class="range" type="range" min="30" max="80" data-key="dockSize" value="${state.dockSize}"><span class="value">${state.dockSize}%</span>`)+
+ row('Automatically hide Dock',toggle('hideDock'))+
+ row('Show recent apps in Dock',toggle('recentApps',true))),
+ 'Displays':()=>card('Displays','☀️',
+ row('Brightness',`<input class="range" type="range" min="10" max="100" data-key="brightness" value="${state.brightness}"><span class="value">${state.brightness}%</span>`)+
+ row('Resolution',select('resolution',['Default','Larger Text','More Space'],'Default'))+
+ row('True Tone',toggle('trueTone',true))),
+ 'Wallpaper':()=>`<div class="card"><div class="card-title">❋ Choose a Wallpaper</div>
+ <p class="sub">Select a look for this demo interface.</p>
+ <div class="wallpapers">${[0,1,2,3,4,5].map(n=>
+ `<button class="wall ${state.wallpaper===n?'selected':''}" data-wall="${n}" aria-label="Wallpaper ${n+1}"></button>`
+ ).join('')}</div>${row('Dynamic Wallpaper',toggle('dynamic',true))}</div>`,
+ 'Screen Saver':()=>card('Screen Saver','▧',
+ row('Start After',select('screenSaver',['Never','5 Minutes','10 Minutes','20 Minutes'],'10 Minutes'))+
+ row('Show with Clock',toggle('screenClock',true))),
+ 'Battery':()=>card('Battery','🔋',
+ row('Low Power Mode',toggle('lowPower'))+
+ row('Battery Percentage',toggle('battery',true))+
+ row('Optimized Charging',toggle('optimized',true))),
+ 'Date & Time':()=>card('Date & Time','◷',
+ row('Set Automatically',toggle('autoTime',true))+
+ row('24-hour time',toggle('time24'))+
+ row('Time Zone',select('timezone',['Automatic','Eastern Time','Pacific Time','Central Time'],'Eastern Time'))),
+ 'Keyboard':()=>card('Keyboard','⌨️',
+ row('Key Repeat',`<input class="range" type="range" min="1" max="10" data-key="keyboardRepeat" value="${state.keyboardRepeat}"><span class="value">${state.keyboardRepeat}</span>`)+
+ row('Keyboard Backlight',toggle('backlight',true))+
+ row('Dictation',toggle('dictation',true))),
+ 'Trackpad':()=>card('Trackpad','▱',
+ row('Tracking Speed',`<input class="range" type="range" min="1" max="10" data-key="trackSpeed" value="${state.trackSpeed}"><span class="value">${state.trackSpeed}</span>`)+
+ row('Tap to Click',toggle('tapClick',true))+
+ row('Natural Scrolling',toggle('naturalScroll',true))),
+ 'Printers & Scanners':()=>card('Printers & Scanners','▤',
+ row('Default Printer','<span class="value">No printer selected</span>')+
+ row('Add Printer','<button class="pill" data-action="printer">Add Printer…</button>')),
+ 'Users & Groups':()=>card('Users & Groups','♙',
+ row('Current User',`<span class="value">${esc(state.name)}</span>`)+
+ row('Guest User',toggle('guest'))+
+ row('Login Items','<span class="value">Manage ›</span>')),
+ 'Passwords':()=>card('Passwords','🔑',
+ '<div class="notice">For safety, this demo never asks for or stores actual passwords.</div>'+
+ row('Saved Passwords','<span class="value">Demo vault ›</span>')+
+ row('AutoFill Passwords',toggle('autofill',true))+
+ row('Security Recommendations','<span class="value">No demo alerts</span>')),
+ 'About This Mac':()=>card('About This Mac','',
+ row('Model Name','<span class="value">MacBook Pro</span>')+
+ row('Chip','<span class="value">Apple Silicon (demo)</span>')+
+ row('Memory','<span class="value">16 GB</span>')+
+ row('macOS','<span class="value">macOS Sequoia (demo)</span>')+
+ row('Serial Number','<span class="value">Hidden in demo</span>'))
+ };
+ return pages[name]
+ ? `<h1 style="font-size:25px">${esc(name)}</h1>
+ <p class="sub">Customize your ${esc(name.toLowerCase())} preferences.</p>${pages[name]()}`
+ : `<h1>${esc(name)}</h1>${card(name,'⚙️',row('Enable',toggle('generic',true)))}`;
+}
+
+function renderRail() {
+ const groups = [
+ ['Customize Your Mac','Change how your Mac looks and feels.',
+ ['Wallpaper','Appearance','Desktop & Dock','Screen Saver','Displays']],
+ ['System Settings','Manage your Mac’s core settings.',
+ ['General','Date & Time','Language & Region','Sharing','Time Machine','Startup Disk']],
+ ['More Settings','Explore more ways to personalize your Mac.',
+ ['Trackpad','Keyboard','Mouse','Printers & Scanners','Sound','Focus']]
+ ];
+ document.getElementById('rail').innerHTML = groups.map(([title,desc,links])=>
+ `<div class="card rail-card"><h3>${title}</h3><p>${desc}</p>${
+ links.map(n=>{
+ const item=items.find(i=>i[0]===n);
+ return `<div class="rail-item" data-page="${n}">
+ <span class="rail-icon" style="background:${item?.[2]||'#384352'}">${item?.[1]||'⚙'}</span>
+ <span>${n}</span><span class="chev">›</span></div>`;
+ }).join('')
+ }</div>`).join('')+
+ '<div class="card rail-card"><b> Your Mac. Your Way.</b><p>Personalize. Secure. Stay Connected.</p></div>';
+}
+
+let photoData = '';
+
+function updateAvatar(url) {
+ ['navAvatar','mainAvatar'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el) el.innerHTML=url?`<img src="${url}" alt="Profile picture">`:'🥍';
+ });
+}
+
+function applyTheme() {
+ document.documentElement.style.setProperty('--accent',state.accent);
+ const light=state.appearance==='Light';
+ const vars=light
+ ? ['#f3f5f8','#fff','#fff','#d6dbe3','#20232a','#626b78','#e8ebf0']
+ : ['#111318','#1b2029','#202632','#343b47','#f4f6fa','#a9b1bf','#171b23'];
+ ['--bg','--panel','--panel2','--line','--text','--muted','--sidebar']
+ .forEach((v,i)=>document.documentElement.style.setProperty(v,vars[i]));
+ document.body.style.fontSize=state.textSize+'px';
+}
+
+function render() {
+ document.getElementById('topTitle').textContent=current==='profile'?'Settings':current;
+ document.querySelectorAll('.nav').forEach(b=>b.classList.toggle('active',b.dataset.page===current));
+ document.getElementById('page').innerHTML=current==='profile'?renderProfile():renderPage(current);
+ document.getElementById('navName').textContent=state.name||'Your Name';
+ updateAvatar(photoData);
+ applyTheme();
+}
+
+document.addEventListener('click',e=>{
+ const nav=e.target.closest('[data-page]');
+ if(nav){current=nav.dataset.page;render();return;}
+ const wall=e.target.closest('[data-wall]');
+ if(wall){state.wallpaper=Number(wall.dataset.wall);render();return;}
+ if(e.target.id==='changePhoto'){document.getElementById('photoFile').click();return;}
+ if(e.target.dataset.action==='printer') alert('Demo only — printer setup is not connected to your Mac.');
+});
+
+document.addEventListener('input',e=>{
+ const key=e.target.dataset.key;
+ if(!key)return;
+ if(e.target.type==='checkbox') state[key]=e.target.checked;
+ else if(e.target.type==='range') state[key]=Number(e.target.value);
+ else state[key]=e.target.value;
+
+ if(key==='name'){
+  document.getElementById('navName').textContent=state.name||'Your Name';
+  const hero=document.getElementById('heroName');
+  if(hero)hero.textContent=state.name;
+ }
+ if(key==='appearance'||key==='accent')applyTheme();
+
+ if(e.target.type==='range'){
+  const v=e.target.parentElement.querySelector('.value');
+  if(v)v.textContent=state[key]+
+   (['brightness','volume','dockSize'].includes(key)?'%':key==='textSize'?'px':'');
+ }
+});
+
+document.getElementById('photoFile').addEventListener('change',e=>{
+ const f=e.target.files[0];
+ if(!f)return;
+ if(!f.type.startsWith('image/'))return alert('Choose an image file.');
+ const reader=new FileReader();
+ reader.onload=()=>{
+  photoData=reader.result;
+  updateAvatar(photoData);
+ };
+ reader.readAsDataURL(f);
+});
+
+document.getElementById('search').addEventListener('input',e=>{
+ const q=e.target.value.toLowerCase();
+ document.querySelectorAll('#navList .nav').forEach(b=>
+  b.classList.toggle('hidden',!b.dataset.page.toLowerCase().includes(q))
+ );
+ document.querySelector('.profile-nav').classList.toggle(
+  'hidden',!!q&&!('profile apple account icloud'.includes(q))
+ );
+});
+
+render();
+renderRail();
+</script>
+</body>
+</html>
